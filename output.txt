@@ -1,0 +1,4 @@
+ADDI x1,x0,2
+SW x1, 2(x0);
+LW x1, 2(x0);
+ADD x2, x1, x3
