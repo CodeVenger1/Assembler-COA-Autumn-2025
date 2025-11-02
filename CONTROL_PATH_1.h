@@ -1,10 +1,9 @@
-
 typedef struct {
-    bool regRead, regWrite;
-    bool memRead, memWrite, memToReg;
-    bool ALUSrc;
-    unsigned int ALUOp;
-    bool branch, jump;
+    bool regRead = false, regWrite = false;
+    bool memRead = false, memWrite = false, memToReg = false;
+    bool ALUSrc = false;
+    unsigned int ALUOp = 32;
+    bool branch = false, jump = false;
 } ControlWord;
 
 class ControlPath {
@@ -14,7 +13,7 @@ class ControlPath {
         unsigned int ALUControl(unsigned int ALUOp, unsigned int func3, unsigned int func7);
 };
 
-unsigned int ControlPath::generateALUOp(unsigned int func3, unsigned int func7, unsigned int opCode) {
+unsigned int ControlPath::generateALUOp(unsigned int func3, unsigned int func7,unsigned int opCode) {
     if (opCode == 51) {  
         if (func7 == 0) {
             switch (func3) {
@@ -53,8 +52,8 @@ unsigned int ControlPath::generateALUOp(unsigned int func3, unsigned int func7, 
             case 3: return 3;   // ANDI
             case 4: return 4;   // ORI
             case 5: return 5;   // XORI
-            case 6: return 10;  // MULI
-            case 7: return 11;  // DIVI
+            case 6: return 10;  // MULI (custom)
+            case 7: return 11;  // DIVI (custom)
             default:
                 if (func7 == 0 && func3 == 0) return 6;    // SLLI
                 if (func7 == 0 && func3 == 1) return 9;    // SRLI
@@ -74,7 +73,7 @@ unsigned int ControlPath::generateALUOp(unsigned int func3, unsigned int func7, 
     }
 
     else if (opCode == 3 || opCode == 35) {
-        return 0;  // base + offset
+        return 0;  // base + offset (add)
     }
 
     else if (opCode == 111 || opCode == 103) {
@@ -85,7 +84,7 @@ unsigned int ControlPath::generateALUOp(unsigned int func3, unsigned int func7, 
 }
 
 ControlWord ControlPath::generateControlWord(unsigned int func3, unsigned int func7,unsigned int opCode) {
-    ControlWord cw = {0};
+    ControlWord cw;
     
     cw.ALUOp = generateALUOp(func3,func7,opCode);
     
