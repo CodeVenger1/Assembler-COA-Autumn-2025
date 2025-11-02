@@ -42,7 +42,8 @@ typedef struct {
     TPC pc;
     int imm;
     ControlWord cw;
-    unsigned int data1, data2, rd, rs1, rs2;
+    int data1, data2;
+    unsigned int rd, rs1, rs2;
     unsigned int func3, func7;
 } instruction_execution_info;
 
@@ -51,7 +52,7 @@ typedef struct {
     bool valid = 0;
     TPC pc;
     ControlWord cw;
-    unsigned int ALUOut;
+    int ALUOut;
     unsigned int rd;
     unsigned int rs2;
 } memory_operation_info;
@@ -61,9 +62,9 @@ typedef struct {
     bool valid = 0;
     TPC pc;
     ControlWord cw;
-    unsigned int ALUOut;
+    int ALUOut;
     unsigned int rd;
-    unsigned int LDOut;
+    int LDOut;
 } register_writeback_info;
 
 // --- Instruction Fetch ---
@@ -197,11 +198,11 @@ public:
         INS_SEGS INS = instructionSegregation(IDI.ir);
         
         IEI.cw = CP.generateControlWord(INS.func3, INS.func7, INS.opCode);
-        if((INS.has_rs1 && registers[INS.rs1].in_use == 3) || (INS.has_rs2 && registers[INS.rs2].in_use == 3)) {
-            stall_decode_global = 1;
-            cout << "decode stalled\n";
-            return IEI;
-        }
+        // if((INS.has_rs1 && registers[INS.rs1].in_use == 3) || (INS.has_rs2 && registers[INS.rs2].in_use == 3)) {
+        //     stall_decode_global = 1;
+        //     cout << "decode stalled\n";
+        //     return IEI;
+        // }
 
 
         if(INS.has_rs1) {
@@ -313,12 +314,8 @@ class InstructionExecute {
         // cout << "RWI.ALUOut "<< RWI.ALUOut << " RWI.rd " << RWI.rd << endl;
         // cout << "RWI.LDOut "<< RWI.LDOut << endl;
         // cout << MOI.valid << "  " << RWI.valid << endl;
-        if(MOI.valid) {
-            if(MOI.rd == IEI.rs1) {
-                // cout<<"rs1 " << IEI.rs1 <<" "<<MOI.ALUOut<<endl;
-                return MOI.ALUOut;
-            }
-        } else if(RWI.valid && RWI.rd == IEI.rs1) {
+        
+        if(RWI.valid && RWI.rd == IEI.rs1) {
             
             if(RWI.cw.memRead) {
                 // cout<<"rs1 " << IEI.rs1 <<" "<<RWI.LDOut<<endl;
@@ -341,12 +338,7 @@ class InstructionExecute {
         // cout << "RWI.ALUOut "<< RWI.ALUOut << " RWI.rd " << RWI.rd << endl;
         // cout << "RWI.LDOut "<< RWI.LDOut << endl;
         // cout << MOI.valid << "  " << RWI.valid << endl;
-        if(MOI.valid) {
-            if(MOI.rd == IEI.rs2) {
-                // cout<<"rs2 " << IEI.rs2 <<" "<<MOI.ALUOut<<endl;
-                return MOI.ALUOut;
-            }
-        } else if(RWI.valid && RWI.rd == IEI.rs2) {
+        if(RWI.valid && RWI.rd == IEI.rs2) {
             
             if(RWI.cw.memRead) {
                 // cout<<"rs2 " << IEI.rs2 <<" "<<RWI.LDOut<<endl;
@@ -410,11 +402,11 @@ public:
         if(MOI.cw.memRead) {
             loadedData = memory[MOI.ALUOut];
             RWI.LDOut = loadedData;
-            if(stall_decode_global && registers[MOI.rd].in_use == 3) {
-                registers[MOI.rd].in_use = 0;
-                stall_decode_global = 0;
-                cout << "decode unstalled" << endl;
-            }
+            // if(stall_decode_global && registers[MOI.rd].in_use == 3) {
+            //     registers[MOI.rd].in_use = 0;
+            //     stall_decode_global = 0;
+            //     cout << "decode unstalled" << endl;
+            // }
         }
         
         if(MOI.cw.memWrite) {

@@ -9,7 +9,7 @@ int main() {
     initFuncCodes();
     initOpTypes();
     
-    ifstream in("input_sum_N.txt");
+    ifstream in("input_fact.txt");
     if(!in) {
         cerr << "Error : File not found ...";
         return 1;
@@ -48,7 +48,7 @@ int main() {
     else IFI.valid = 0;
 
     while(IFI.valid || IDI.valid || IEI.valid || MOI.valid || RWI.valid) {
-        // if(cc > 10) break;
+        // if(cc > 20) break;
         // cout << IFI.valid << ' ' << IDI.valid << ' ' << IEI.valid << ' ' << MOI.valid << ' ' << RWI.valid << endl;
         if(RWI.valid && !RWI.stall) {
             WB.begin(RWI);
@@ -79,23 +79,14 @@ int main() {
         // } else {
         //     //TODO
         // }
-
+        
         if(IDI.valid && !IDI.stall) {
             IEI = ID.begin(IDI);
         } else IEI.valid = 0;
-
-        if(stall_decode_global) {
-            // cout << "hello" << endl;
-            // stall_decode_global = 0;
-        } else {
-            if(stall_fetch_global) {
-
-            } else {
-                if(IFI.valid && !IFI.stall) {
-                    IDI = IF.begin(IFI);
-                } else IDI.valid = 0;
-            }
-        }
+        
+        if(IFI.valid && !IFI.stall) {
+            IDI = IF.begin(IFI);
+        } else IDI.valid = 0;
 
         if(PC < (int)instructions.size()) IFI.valid = 1;
         else IFI.valid = 0;

@@ -1,4 +1,5 @@
-ADDI x1,x0,2
-SW x1, 2(x0);
-LW x1, 2(x0);
-ADD x2, x1, x3
+ADDI x1, x0, 5
+LW x5, 0(x4)
+ADD x3, x3, x5
+ADDI x4, x4, 1
+BLT x4, x1, -3
